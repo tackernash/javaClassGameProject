@@ -25,6 +25,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	public int screenWidth = 1920;
 	public int screenHeight = 1080;
 
+	//controls
+	boolean toggleStats = false;
+
 	//stats
 	private double speedMultiplier = 1;
 	private int lives = 1;
@@ -49,7 +52,6 @@ public class MyGdxGame extends ApplicationAdapter {
 	//hit boxes
 	private Rectangle mainCharacter;
 	private Rectangle finishLine;
-	private Rectangle damageFloor;
 	private Rectangle heart;
 
 	//need array for sharpObjects
@@ -63,9 +65,6 @@ public class MyGdxGame extends ApplicationAdapter {
 	int randomXHeart = random.nextInt(screenWidth - 32);
 	int randomYHeart = random.nextInt(screenHeight - 32);
 
-	int randomXDamageFloor = random.nextInt(screenWidth - 32);
-	int randomYDamageFloor = random.nextInt(screenHeight - 32);
-
 	//spawn sharp objects fxn
 	private void spawnSharpObject(){
 		Rectangle sharpObject = new Rectangle();
@@ -75,15 +74,23 @@ public class MyGdxGame extends ApplicationAdapter {
 		sharpObject.height = 32;
 		sharpObjects.add(sharpObject);
 		lastDropTime = TimeUtils.nanoTime();
-
 	}
+
+	private void generateDamageFloor(){
+		Rectangle damageFloor = new Rectangle();
+		damageFloor.x = MathUtils.random(0, screenWidth-64);
+		damageFloor.y = MathUtils.random(0, screenHeight-64);
+		damageFloor.width = 32;
+		damageFloor.height = 32;
+	}
+
+
 
 	BitmapFont font;
 
 	@Override
 	public void create () {
 
-		damageFloorSprite = new Texture("damage.png");
 		sharpObjectSprite = new Texture("sharpObject.png");
 		heartSprite = new Texture("heart.png");
 		mainCharacterSprite = new Texture("salmonSquare.png");
@@ -114,13 +121,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		heart.width = 32;
 		heart.height = 32;
 
-		damageFloor = new Rectangle();
-		damageFloor.x = randomXDamageFloor - 150;
-		damageFloor.y = randomYDamageFloor - 25;
-		damageFloor.width = 32;
-		damageFloor.height = 32;
-
 		sharpObjects = new Array<Rectangle>();
+
 
 	}
 
@@ -136,20 +138,23 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.begin();
 		batch.draw(finishLineSprite, finishLine.x, finishLine.y);
 		batch.draw(mainCharacterSprite, mainCharacter.x, mainCharacter.y);
-		batch.draw(damageFloorSprite, damageFloor.x, damageFloor.y);
+
+		//batch.draw(damageFloorSprite, damageFloor.x, damageFloor.y);
 
 		//drawing of sharpObjects
 		for(Rectangle sharpObject: sharpObjects){
 			batch.draw(sharpObjectSprite, sharpObject.x, sharpObject.y);
 		}
 
-		//stats of game show
-
-		if(Gdx.input.isKeyPressed(Input.Keys.TAB)){
 			font.getData().setScale(1);
 			font.draw(batch, "speed:" + speedString, screenWidth/16, screenHeight-64);
 			font.draw(batch, "lives:" + livesString, screenWidth/16, screenHeight-100);
 			font.draw(batch, "status of game:" + statusOfGame, screenWidth/16, screenHeight-128);
+
+
+		if(lives==0){
+			font.getData().setScale(2);
+			font.draw(batch, "GAME OVER", screenWidth/2,screenHeight/2);
 		}
 
 
@@ -180,8 +185,9 @@ public class MyGdxGame extends ApplicationAdapter {
 				iter.remove();
 			}
 			if(sharpObject.overlaps(mainCharacter)){
-				System.out.println("You lost a heart");
+				iter.remove();
 				lives -= 1;
+				livesString = String.valueOf(lives);
 
 			}
 		}
@@ -194,6 +200,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		if(Gdx.input.isKeyPressed(Input.Keys.D)) {mainCharacter.x += 200 * Gdx.graphics.getDeltaTime() * speedMultiplier;}
 		if(Gdx.input.isKeyPressed(Input.Keys.W)) {mainCharacter.y += 200 * Gdx.graphics.getDeltaTime() * speedMultiplier;}
 		if(Gdx.input.isKeyPressed(Input.Keys.S)) {mainCharacter.y -= 200 * Gdx.graphics.getDeltaTime() * speedMultiplier;}
+
+
 
 		//speedMultipler (shift)
 		if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
