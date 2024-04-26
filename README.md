@@ -1,0 +1,1 @@
+Hey all! This was a game that I created using Java and the LibGDX framework. I wanted to add a lot more features, and I restarted this project a few times, but this was a result that I thought was acceptable. I wanted to add menus, different game states, etc, but this is all I had time for.
